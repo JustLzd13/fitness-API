@@ -1,6 +1,6 @@
 const Workout = require('../models/Workout');
 
-module.exports.createWorkout = (req, res) => {
+module.exports.addWorkout = (req, res) => {
     const { name, duration } = req.body;
     const userId = req.user.id;
 
@@ -23,16 +23,18 @@ module.exports.createWorkout = (req, res) => {
         .then(workout => res.status(201).send(workout))
         .catch(err => {
             console.error("Error in saving workout: ", err);
-            return res.status(500).send({ error: "Error in saving workout" });
+            return res.status(500).send({ error: "Internal server error" });
         });
 };
 
-module.exports.getWorkouts = (req, res) => {
+module.exports.getMyWorkouts = (req, res) => {
     const userId = req.user.id;
 
     Workout.find({ userId })
-        .then(workouts => res.status(200).send(workouts))
-        .catch(err => res.status(500).send({ error: err.message }));
+        .then(workouts => {
+            res.status(200).send(workouts); // Always return 200 with an array (empty or filled)
+        })
+        .catch(err => res.status(500).send({ error: "Internal server error" }));
 };
 
 module.exports.getWorkoutById = (req, res) => {
@@ -46,7 +48,7 @@ module.exports.getWorkoutById = (req, res) => {
             }
             res.status(200).send(workout);
         })
-        .catch(err => res.status(500).send({ error: err.message }));
+        .catch(err => res.status(500).send({ error: "Internal server error" }));
 };
 
 module.exports.updateWorkout = (req, res) => {
@@ -61,11 +63,11 @@ module.exports.updateWorkout = (req, res) => {
     )
         .then(updatedWorkout => {
             if (!updatedWorkout) {
-                return res.status(404).send({ error: "Workout not found or unauthorized" });
+                return res.status(404).send({ error: "Workout not found" });
             }
             res.status(200).send(updatedWorkout);
         })
-        .catch(err => res.status(500).send({ error: err.message }));
+        .catch(err => res.status(500).send({ error: "Internal server error" }));
 };
 
 module.exports.deleteWorkout = (req, res) => {
@@ -79,13 +81,15 @@ module.exports.deleteWorkout = (req, res) => {
             }
             res.status(200).send({ message: "Workout deleted successfully" });
         })
-        .catch(err => res.status(500).send({ error: err.message }));
+        .catch(err => res.status(500).send({ error: "Internal server error" }));
 };
 
 module.exports.getCompletedWorkouts = (req, res) => {
     const userId = req.user.id;
 
     Workout.find({ userId, status: 'completed' })
-        .then(completedWorkouts => res.status(200).send(completedWorkouts))
-        .catch(err => res.status(500).send({ error: err.message }));
+        .then(completedWorkouts => {
+            res.status(200).send(completedWorkouts);
+        })
+        .catch(err => res.status(500).send({ error: "Internal server error" }));
 };
