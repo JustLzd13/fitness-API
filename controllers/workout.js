@@ -81,3 +81,11 @@ module.exports.deleteWorkout = (req, res) => {
         })
         .catch(err => res.status(500).send({ error: err.message }));
 };
+
+module.exports.getCompletedWorkouts = (req, res) => {
+    const userId = req.user.id;
+
+    Workout.find({ userId, status: 'completed' })
+        .then(completedWorkouts => res.status(200).send(completedWorkouts))
+        .catch(err => res.status(500).send({ error: err.message }));
+};
