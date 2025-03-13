@@ -32,9 +32,15 @@ module.exports.getMyWorkouts = (req, res) => {
 
     Workout.find({ userId })
         .then(workouts => {
-            res.status(200).send(workouts); // Always return 200 with an array (empty or filled)
+            if (workouts.length === 0) {
+                return res.status(404).send({ error: "No workouts found" });
+            }
+            res.status(200).send(workouts);
         })
-        .catch(err => res.status(500).send({ error: "Internal server error" }));
+        .catch(err => {
+            console.error("Error fetching workouts:", err);
+            res.status(500).send({ error: "Internal server error" });
+        });
 };
 
 module.exports.getWorkoutById = (req, res) => {
